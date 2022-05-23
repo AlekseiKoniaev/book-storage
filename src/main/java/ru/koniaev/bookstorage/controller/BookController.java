@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.koniaev.bookstorage.api.response.SuccessResponse;
+import ru.koniaev.bookstorage.api.response.IdResponse;
 import ru.koniaev.bookstorage.api.response.Response;
 import ru.koniaev.bookstorage.model.Book;
 import ru.koniaev.bookstorage.service.BookService;
@@ -42,12 +42,12 @@ public class BookController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Object> get(@PathVariable int id) {
+    public ResponseEntity<Book> get(@PathVariable int id) {
         
         Book book = bookService.getById(id);
         
         if (book == null) {
-            return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(book, HttpStatus.OK);
         }
@@ -55,12 +55,12 @@ public class BookController {
     }
     
     @GetMapping("/")
-    public ResponseEntity<Object> list() {
+    public ResponseEntity<List<Book>> list() {
         
         List<Book> bookList = bookService.getAll();
         
         if (bookList.isEmpty()) {
-            return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(bookList, HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(bookList, HttpStatus.OK);
         }
@@ -69,7 +69,7 @@ public class BookController {
     @PutMapping("/{id}")
     public ResponseEntity<Response> update(
             @PathVariable int id,
-            @RequestParam(value = "title", required = false, defaultValue = "") String title,
+            @RequestParam(value = "title", required = false, defaultValue = "null") String title,
             @RequestParam(value = "year", required = false, defaultValue = "0") int year,
             @RequestParam(value = "pageCount", required = false, defaultValue = "0") int pageCount,
             @RequestParam(value = "authorId", required = false, defaultValue = "0") int authorId,
@@ -80,7 +80,7 @@ public class BookController {
         if (result == 0) {
             return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(new SuccessResponse(id), HttpStatus.OK);
+            return new ResponseEntity<>(new IdResponse(id), HttpStatus.OK);
         }
     }
     
@@ -92,7 +92,7 @@ public class BookController {
         if (result == 0) {
             return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(new SuccessResponse(id), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(new IdResponse(id), HttpStatus.NO_CONTENT);
         }
     }
     

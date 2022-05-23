@@ -7,10 +7,10 @@ import java.util.Optional;
 
 public interface GenreRepository {
     
-    void save(Genre genre);
-    Optional<Genre> findById(int id);
-    Optional<List<Genre>> findAll();
-    void update(Genre genre);
+    boolean save(Genre genre);
+    Genre findById(int id);
+    List<Genre> findAll();
+    boolean update(Genre genre);
     void delete(int id);
     void deleteAll();
 }

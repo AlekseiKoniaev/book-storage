@@ -1,6 +1,5 @@
 package ru.koniaev.bookstorage.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.koniaev.bookstorage.model.Book;
 import ru.koniaev.bookstorage.repository.BookRepository;
@@ -43,26 +42,22 @@ public class BookServiceImpl implements BookService {
     
     @Override
     public Book getById(int id) {
-        Optional<Book> book = bookRepository.findById(id);
-        return book.orElse(null);
+        return bookRepository.findById(id);
     }
 
     @Override
     public List<Book> getAll() {
-        var bookList = bookRepository.findAll();
-        return bookList.orElse(new ArrayList<>());
+        return bookRepository.findAll();
     }
     
     @Override
     public int update(int id, String title, int year, int pageCount, int authorId, int genreId) {
         
-        Optional<Book> bookOptional = bookRepository.findById(id);
+        Book book = bookRepository.findById(id);
         
-        if (bookOptional.isEmpty()) {
+        if (book == null) {
             return 0;
         } else {
-            Book book = bookOptional.get();
-            
             if (!title.isBlank()) {
                 book.setTitle(title);
             }
@@ -88,9 +83,9 @@ public class BookServiceImpl implements BookService {
     @Override
     public int deleteById(int id) {
         
-        Optional<Book> book = bookRepository.findById(id);
+        Book book = bookRepository.findById(id);
         
-        if (book.isEmpty()) {
+        if (book == null) {
             return 0;
         } else {
             bookRepository.delete(id);

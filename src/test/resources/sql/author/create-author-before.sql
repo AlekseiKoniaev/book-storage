@@ -1,0 +1,1 @@
+insert into author (id, first_name, second_name, birthday) values (1,'Alex','Black','1987-04-13'),(2,'Mike','Green','1974-01-02');

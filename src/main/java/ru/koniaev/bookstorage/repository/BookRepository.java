@@ -7,10 +7,10 @@ import java.util.Optional;
 
 public interface BookRepository {
     
-    void save(Book book);
-    Optional<Book> findById(int id);
-    Optional<List<Book>> findAll();
-    void update(Book book);
+    boolean save(Book book);
+    Book findById(int id);
+    List<Book> findAll();
+    boolean update(Book book);
     void delete(int id);
     void deleteAll();
     

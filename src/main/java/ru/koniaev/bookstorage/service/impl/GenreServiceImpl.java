@@ -20,7 +20,7 @@ public class GenreServiceImpl implements GenreService {
     
     
     @Override
-    public boolean add(String name) {
+    public boolean insert(String name) {
     
         if (name == null || name.isBlank()) {
             return false;
@@ -36,26 +36,22 @@ public class GenreServiceImpl implements GenreService {
     
     @Override
     public Genre getById(int id) {
-        Optional<Genre> genre = genreRepository.findById(id);
-        return genre.orElse(null);
+        return genreRepository.findById(id);
     }
     
     @Override
     public List<Genre> getAll() {
-        var genreList = genreRepository.findAll();
-        return genreList.orElse(new ArrayList<>());
+        return genreRepository.findAll();
     }
     
     @Override
     public int update(int id, String name) {
     
-        Optional<Genre> genreOptional = genreRepository.findById(id);
+        Genre genre = genreRepository.findById(id);
     
-        if (genreOptional.isEmpty()) {
+        if (genre == null) {
             return 0;
         } else {
-            Genre genre = genreOptional.get();
-        
             if (!name.isBlank()) {
                 genre.setName(name);
             }
@@ -69,9 +65,9 @@ public class GenreServiceImpl implements GenreService {
     @Override
     public int deleteById(int id) {
         
-        Optional<Genre> genre = genreRepository.findById(id);
+        Genre genre = genreRepository.findById(id);
     
-        if (genre.isEmpty()) {
+        if (genre == null) {
             return 0;
         } else {
             genreRepository.delete(id);

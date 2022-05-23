@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.koniaev.bookstorage.api.response.Response;
-import ru.koniaev.bookstorage.api.response.SuccessResponse;
+import ru.koniaev.bookstorage.api.response.IdResponse;
 import ru.koniaev.bookstorage.model.Author;
 import ru.koniaev.bookstorage.service.AuthorService;
 
@@ -37,7 +37,12 @@ public class AuthorController {
         
         boolean result = service.insert(firstName, secondName, birthday);
         
-        return new ResponseEntity<>(new Response(result), HttpStatus.OK);
+        if (result) {
+            return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Response(false), HttpStatus.BAD_REQUEST);
+        }
+        
     }
     
     @GetMapping("/{id}")
@@ -46,7 +51,7 @@ public class AuthorController {
         Author author = service.getById(id);
         
         if (author == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(author, HttpStatus.OK);
         }
@@ -58,7 +63,7 @@ public class AuthorController {
         List<Author> authorList = service.getAll();
         
         if (authorList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(authorList, HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(authorList, HttpStatus.OK);
         }
@@ -67,16 +72,16 @@ public class AuthorController {
     @PutMapping("/{id}")
     public ResponseEntity<Response> update(
             @PathVariable int id,
-            @RequestParam(value = "firstName", required = false, defaultValue = "") String firstName,
-            @RequestParam(value = "secondName", required = false, defaultValue = "") String secondName,
+            @RequestParam(value = "firstName", required = false, defaultValue = "null") String firstName,
+            @RequestParam(value = "secondName", required = false, defaultValue = "null") String secondName,
             @RequestParam(value = "birthday", required = false, defaultValue = "null") Date birthday) {
         
         int result = service.update(id, firstName, secondName, birthday);
         
         if (result == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(new SuccessResponse(id), HttpStatus.OK);
+            return new ResponseEntity<>(new IdResponse(id), HttpStatus.OK);
         }
     }
     
@@ -86,15 +91,15 @@ public class AuthorController {
         int result = service.deleteById(id);
         
         if (result == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(new SuccessResponse(id), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(new IdResponse(id), HttpStatus.NO_CONTENT);
         }
     }
     
     @DeleteMapping("/")
     public ResponseEntity<Response> deleteAll() {
         service.deleteAll();
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        return new ResponseEntity<>(new Response(true), HttpStatus.NO_CONTENT);
     }
 }

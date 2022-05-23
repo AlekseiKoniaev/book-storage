@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.koniaev.bookstorage.api.response.Response;
-import ru.koniaev.bookstorage.api.response.SuccessResponse;
+import ru.koniaev.bookstorage.api.response.IdResponse;
 import ru.koniaev.bookstorage.model.Genre;
 import ru.koniaev.bookstorage.service.GenreService;
 
@@ -30,7 +30,7 @@ public class GenreController {
     
     @PostMapping("/")
     public ResponseEntity<Response> insert(@RequestParam("name") String name) {
-        boolean result = genreService.add(name);
+        boolean result = genreService.insert(name);
         return new ResponseEntity<>(new Response(result), HttpStatus.OK);
     }
     
@@ -40,7 +40,7 @@ public class GenreController {
         Genre genre = genreService.getById(id);
         
         if (genre == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(genre, HttpStatus.OK);
         }
@@ -52,7 +52,7 @@ public class GenreController {
         List<Genre> authorList = genreService.getAll();
         
         if (authorList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(authorList, HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(authorList, HttpStatus.OK);
         }
@@ -61,14 +61,14 @@ public class GenreController {
     @PutMapping("/{id}")
     public ResponseEntity<Response> update(
             @PathVariable int id,
-            @RequestParam(value = "name", required = false, defaultValue = "") String name) {
+            @RequestParam(value = "name", required = false, defaultValue = "null") String name) {
         
         int result = genreService.update(id, name);
         
         if (result == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(new SuccessResponse(id), HttpStatus.OK);
+            return new ResponseEntity<>(new IdResponse(id), HttpStatus.OK);
         }
     }
     
@@ -78,15 +78,15 @@ public class GenreController {
         int result = genreService.deleteById(id);
         
         if (result == 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(new SuccessResponse(id), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(new IdResponse(id), HttpStatus.NO_CONTENT);
         }
     }
     
     @DeleteMapping("/")
     public ResponseEntity<Response> deleteAll() {
         genreService.deleteAll();
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        return new ResponseEntity<>(new Response(true), HttpStatus.NO_CONTENT);
     }
 }

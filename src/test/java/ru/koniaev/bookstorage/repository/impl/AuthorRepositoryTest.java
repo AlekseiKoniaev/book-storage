@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlMergeMode;
 import ru.koniaev.bookstorage.model.Author;
 import ru.koniaev.bookstorage.repository.AuthorRepository;
 
@@ -13,39 +14,74 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
-@Sql(value = "/sql/author-before.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
+@Sql(value = "/sql/author/author-before.sql", executionPhase = BEFORE_TEST_METHOD)
 public class AuthorRepositoryTest {
     
-    private final List<Author> prepareAuthorList = createAuthors();
+    private final List<Author> preparedAuthorList = createAuthors();
     
     @Autowired
     private AuthorRepository repository;
     
     @Test
-    void save_shouldSaveAuthor() {
-        int expected = 1;
-        Author author = prepareAuthorList.get(0);
+    void save_shouldSaveAuthor_whenFieldsCorrectAndNotExists() {
+        int expectedCount = 1;
+        Author author = preparedAuthorList.get(0);
         int preSaveCount = repository.findAll().size();
         
-        repository.save(author);
+        boolean actualReturn = repository.save(author);
+        int postSaveCount = repository.findAll().size();
+        int actualCount = postSaveCount - preSaveCount;
+    
+        assertTrue(actualReturn);
+        assertEquals(expectedCount, actualCount);
+    }
+    
+    @Test
+    @Sql(value = "/sql/author/create-author-before.sql", executionPhase = BEFORE_TEST_METHOD)
+    void save_shouldReturnFalse_whenExists() {
+        int expected = 0;
+        Author author = preparedAuthorList.get(0);
+        int preSaveCount = repository.findAll().size();
+    
+        boolean actualReturn = repository.save(author);
         int postSaveCount = repository.findAll().size();
         int actual = postSaveCount - preSaveCount;
-        
+    
+        assertFalse(actualReturn);
         assertEquals(expected, actual);
     }
     
     @Test
-    void findById_shouldSaveAndFindAuthor() {
-        Author author = prepareAuthorList.get(0);
-        repository.save(author);
-        Author expected = repository.findAll().get(0);
+    void save_shouldSaveAuthor_whenFieldsNotCorrect() {
+        int expectedCount = 0;
+        Author author = preparedAuthorList.get(0);
+        author.setFirstName(null);
+        int preSaveCount = repository.findAll().size();
+        
+        boolean actualReturn = repository.save(author);
+        int postSaveCount = repository.findAll().size();
+        int actualCount = postSaveCount - preSaveCount;
+        
+        assertFalse(actualReturn);
+        assertEquals(expectedCount, actualCount);
+    }
+    
+    
+    @Test
+    @Sql(value = "/sql/author/create-author-before.sql", executionPhase = BEFORE_TEST_METHOD)
+    void findById_shouldFindAuthor_whenExists() {
+        Author expected = preparedAuthorList.get(0);
+        expected.setId(1);
         
         Author actual = repository.findById(expected.getId());
         
@@ -54,62 +90,125 @@ public class AuthorRepositoryTest {
     }
     
     @Test
-    void findAll_shouldSaveAndFindAllAuthors() {
-        prepareAuthorList.forEach(author -> repository.save(author));
-        int expectedCount = prepareAuthorList.size();
+    void findById_shouldReturnNull_whenNotExists() {
+        Author actual = repository.findById(1);
+        
+        assertNull(actual);
+    }
+    
+    
+    @Test
+    @Sql(value = "/sql/author/create-author-before.sql", executionPhase = BEFORE_TEST_METHOD)
+    void findAll_shouldFindAllAuthors_whenExists() {
+        int expectedCount = 2;
         
         List<Author> foundAuthors = repository.findAll();
         int actualCount = foundAuthors.size();
     
         assertEquals(expectedCount, actualCount);
-        assertTrue(prepareAuthorList.containsAll(foundAuthors));
+        assertTrue(preparedAuthorList.containsAll(foundAuthors));
     }
     
     @Test
-    void update_shouldSaveAndUpdateAuthor() {
-        Author initialAuthor = prepareAuthorList.get(0);
-        repository.save(initialAuthor);
-        Author foundAuthor = repository.findAll().get(0);
-        Author newAuthor = prepareAuthorList.get(1);
-        newAuthor.setId(foundAuthor.getId());
+    void findAll_shouldReturnEmptyList_whenNotExists() {
+        List<Author> actual = repository.findAll();
         
-        repository.update(newAuthor);
-        Author updatedAuthor = repository.findById(newAuthor.getId());
+        assertTrue(actual.isEmpty());
+    }
+    
+    
+    @Test
+    @Sql(value = "/sql/author/create-author-before.sql", executionPhase = BEFORE_TEST_METHOD)
+    void update_shouldUpdateAuthor_whenFieldsCorrectAndExists() {
+        Author editedAuthor = preparedAuthorList.get(2);
+        editedAuthor.setId(1);
+    
+        boolean actualReturn = repository.update(editedAuthor);
+        Author updatedAuthor = repository.findById(editedAuthor.getId());
         
-        assertNotNull(foundAuthor);
+        assertTrue(actualReturn);
         assertNotNull(updatedAuthor);
-        assertNotEquals(foundAuthor, updatedAuthor);
-        assertEquals(newAuthor, updatedAuthor);
+        assertEquals(editedAuthor, updatedAuthor);
     }
     
     @Test
-    void delete_shouldSaveAndDeleteAuthor() {
-        int expected = 1;
-        Author author = prepareAuthorList.get(0);
-        repository.save(author);
-        var foundAuthors = repository.findAll();
-        int preDeleteCount = foundAuthors.size();
-        int id = foundAuthors.get(0).getId();
+    void update_shouldReturnTrue_whenNotExists() {
+        Author editedAuthor = preparedAuthorList.get(2);
+        editedAuthor.setId(1);
+    
+        boolean actualReturn = repository.update(editedAuthor);
         
-        repository.delete(id);
+        assertTrue(actualReturn);
+    }
+    
+    @Test
+    @Sql(value = "/sql/author/create-author-before.sql", executionPhase = BEFORE_TEST_METHOD)
+    void update_shouldReturnFalse_whenFieldsNotCorrect() {
+        Author expectedAuthor = preparedAuthorList.get(0);
+        Author editedAuthor = preparedAuthorList.get(2);
+        editedAuthor.setId(1);
+        editedAuthor.setFirstName(null);
+    
+        boolean actualReturn = repository.update(editedAuthor);
+        Author actualAuthor = repository.findById(editedAuthor.getId());
+    
+        assertFalse(actualReturn);
+        assertNotNull(actualAuthor);
+        assertEquals(expectedAuthor, actualAuthor);
+    }
+    
+    
+    @Test
+    @Sql(value = "/sql/author/create-author-before.sql", executionPhase = BEFORE_TEST_METHOD)
+    void delete_shouldDeleteAuthor_whenExists() {
+        int expectedCount = 1;
+        int preDeleteCount = repository.findAll().size();
+        
+        repository.delete(1);
         int postDeleteCount = repository.findAll().size();
-        int actual = preDeleteCount - postDeleteCount;
+        int actualCount = preDeleteCount - postDeleteCount;
         
-        assertEquals(expected, actual);
+        assertEquals(expectedCount, actualCount);
     }
     
     @Test
-    void delete_shouldMultipleSaveAndDeleteAllAuthors() {
-        int expected = prepareAuthorList.size();
-        prepareAuthorList.forEach(author -> repository.save(author));
+    void delete_shouldCompleteCorrectly_whenNotExists() {
+        int expectedCount = 0;
+        int preDeleteCount = repository.findAll().size();
+        
+        repository.delete(1);
+        int postDeleteCount = repository.findAll().size();
+        int actualCount = preDeleteCount - postDeleteCount;
+        
+        assertEquals(expectedCount, actualCount);
+    }
+    
+    
+    @Test
+    @Sql(value = "/sql/author/create-author-before.sql", executionPhase = BEFORE_TEST_METHOD)
+    void deleteAll_shouldDeleteAllAuthors_whenExist() {
+        int expectedCount = 2;
+        int preDeleteCount = repository.findAll().size();
+    
+        repository.deleteAll();
+        int postDeleteCount = repository.findAll().size();
+        int actualCount = preDeleteCount - postDeleteCount;
+        
+        assertEquals(expectedCount, actualCount);
+    }
+    
+    @Test
+    void deleteAll_shouldCompleteCorrectly_whenNotExist() {
+        int expectedCount = 0;
         int preDeleteCount = repository.findAll().size();
         
         repository.deleteAll();
         int postDeleteCount = repository.findAll().size();
-        int actual = preDeleteCount - postDeleteCount;
+        int actualCount = preDeleteCount - postDeleteCount;
         
-        assertEquals(expected, actual);
+        assertEquals(expectedCount, actualCount);
     }
+    
     
     private List<Author> createAuthors() {
         List<Author> list = new ArrayList<>();

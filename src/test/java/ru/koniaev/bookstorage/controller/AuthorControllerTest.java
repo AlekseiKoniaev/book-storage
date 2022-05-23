@@ -8,11 +8,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.koniaev.bookstorage.api.response.Response;
-import ru.koniaev.bookstorage.api.response.SuccessResponse;
+import ru.koniaev.bookstorage.api.response.IdResponse;
 import ru.koniaev.bookstorage.model.Author;
 import ru.koniaev.bookstorage.service.AuthorService;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +33,7 @@ public class AuthorControllerTest {
     private AuthorController controller;
     
     @Test
-    void insert() {
+    void insert_shouldSaveAuthorAndReturnTrueResponse() {
         Author author = createAuthor();
         String firstName = author.getFirstName();
         String secondName = author.getSecondName();
@@ -49,7 +50,24 @@ public class AuthorControllerTest {
     }
     
     @Test
-    void get() {
+    void insert_shouldNotSaveAuthorAndReturnFalseResponse() {
+        Author author = createAuthor();
+        String firstName = author.getFirstName();
+        String secondName = author.getSecondName();
+        Date birthday = author.getBirthday();
+        when(service.insert(firstName, secondName, birthday)).thenReturn(false);
+        final ResponseEntity<Response> expected = new ResponseEntity<>(
+                new Response(false), HttpStatus.BAD_REQUEST);
+        
+        ResponseEntity<Response> actual = controller.insert(firstName, secondName, birthday);
+        
+        assertNotNull(actual);
+        assertEquals(expected, actual);
+        verify(service).insert(firstName, secondName, birthday);
+    }
+    
+    @Test
+    void get_shouldGetAuthorAndReturnOkStatus() {
         Author author = mock(Author.class);
         when(service.getById(ID)).thenReturn(author);
         final ResponseEntity<Author> expected = new ResponseEntity<>(author, HttpStatus.OK);
@@ -62,7 +80,20 @@ public class AuthorControllerTest {
     }
     
     @Test
-    void list() {
+    void get_shouldNotGetAuthorAndReturnNotFoundStatus() {
+        Author author = mock(Author.class);
+        when(service.getById(ID)).thenReturn(null);
+        final ResponseEntity<Author> expected = new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        
+        ResponseEntity<Author> actual = controller.get(ID);
+        
+        assertNotNull(actual);
+        assertEquals(expected, actual);
+        verify(service).getById(ID);
+    }
+    
+    @Test
+    void list_shouldGetListAuthorsAndReturnOkStatus() {
         List<Author> authorList = mock(List.class);
         when(service.getAll()).thenReturn(authorList);
         final ResponseEntity<List<Author>> expected = new ResponseEntity<>(
@@ -76,6 +107,20 @@ public class AuthorControllerTest {
     }
     
     @Test
+    void list_shouldGetEmptyListAndReturnNotFoundStatus() {
+        List<Author> emptyList = new ArrayList<>();
+        when(service.getAll()).thenReturn(emptyList);
+        final ResponseEntity<List<Author>> expected = new ResponseEntity<>(
+                emptyList, HttpStatus.NOT_FOUND);
+        
+        ResponseEntity<List<Author>> actual = controller.list();
+        
+        assertNotNull(actual);
+        assertEquals(expected, actual);
+        verify(service).getAll();
+    }
+    
+    @Test
     void update() {
         Author author = createAuthor();
         String firstName = author.getFirstName();
@@ -83,7 +128,7 @@ public class AuthorControllerTest {
         Date birthday = author.getBirthday();
         when(service.update(ID, firstName, secondName, birthday)).thenReturn(ID);
         final ResponseEntity<Response> expected = new ResponseEntity<>(
-                new SuccessResponse(ID), HttpStatus.OK);
+                new IdResponse(ID), HttpStatus.OK);
     
         ResponseEntity<Response> actual = controller.update(ID, firstName, secondName, birthday);
     
@@ -96,7 +141,7 @@ public class AuthorControllerTest {
     void delete() {
         when(service.deleteById(ID)).thenReturn(ID);
         final ResponseEntity<Response> expected = new ResponseEntity<>(
-                new SuccessResponse(ID), HttpStatus.NO_CONTENT);
+                new IdResponse(ID), HttpStatus.NO_CONTENT);
     
         ResponseEntity<Response> actual = controller.delete(ID);
     
@@ -107,8 +152,8 @@ public class AuthorControllerTest {
     
     @Test
     void deleteAll() {
-        final ResponseEntity<Response> expected = ResponseEntity
-                .status(HttpStatus.NO_CONTENT).body(null);
+        final ResponseEntity<Response> expected =
+                new ResponseEntity<>(new Response(true), HttpStatus.NO_CONTENT);
         
         ResponseEntity<Response> actual = controller.deleteAll();
     

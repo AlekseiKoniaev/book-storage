@@ -27,10 +27,16 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     
     
     @Override
-    public void save(Author author) {
-        String sql = "insert into author(first_name, second_name, birthday) values (?,?,?)";
-        jdbcTemplate.update(sql, author.getFirstName(), author.getSecondName(),
-                author.getBirthday());
+    public boolean save(Author author) {
+        
+        try {
+            String sql = "insert into author(first_name, second_name, birthday) values (?,?,?)";
+            jdbcTemplate.update(sql, author.getFirstName(), author.getSecondName(),
+                    author.getBirthday());
+            return true;
+        } catch (DataAccessException e) {
+            return false;
+        }
     }
     
     @Override
@@ -46,27 +52,28 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     
     @Override
     public List<Author> findAll() {
-       
-        try {
-            return jdbcTemplate.query("select * from author", rowMapper);
-        } catch (DataAccessException e) {
-            return new ArrayList<>();
-        }
+        return jdbcTemplate.query("select * from author", rowMapper);
     }
     
     @Override
-    public void update(Author author) {
-        String sql = "update author set (first_name, second_name, birthday) = (?,?,?) " +
-                "where id = ?";
-        jdbcTemplate.update(sql, author.getFirstName(), author.getSecondName(),
-                author.getBirthday(), author.getId());
+    public boolean update(Author author) {
+        
+        try {
+            String sql = "update author set (first_name, second_name, birthday) = (?,?,?) " +
+                    "where id = ?";
+            jdbcTemplate.update(sql, author.getFirstName(), author.getSecondName(),
+                    author.getBirthday(), author.getId());
+            return true;
+        } catch (DataAccessException e) {
+            return false;
+        }
     }
     
     @Override
     public void delete(int id) {
         jdbcTemplate.update("delete from author where id = ?", id);
     }
-
+    
     @Override
     public void deleteAll() {
         jdbcTemplate.update("delete from author");
