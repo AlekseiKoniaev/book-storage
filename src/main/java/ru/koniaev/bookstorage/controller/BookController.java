@@ -1,5 +1,6 @@
 package ru.koniaev.bookstorage.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +18,7 @@ import ru.koniaev.bookstorage.service.BookService;
 
 import java.util.List;
 
+@Tag(name = "book", description = "The book API")
 @RestController
 @RequestMapping("/api/book")
 public class BookController {
