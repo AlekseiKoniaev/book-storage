@@ -1,6 +1,5 @@
 FROM openjdk:17
 COPY target/book-storage-1.0.jar bookstorage.jar
-COPY ./application-dev.properties .
 COPY ./application-prod.properties .
 ENV PORT 8080
 ENV PROFILE prod
