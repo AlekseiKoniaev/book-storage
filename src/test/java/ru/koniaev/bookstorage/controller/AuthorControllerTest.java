@@ -7,16 +7,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import ru.koniaev.bookstorage.api.response.Response;
 import ru.koniaev.bookstorage.api.response.IdResponse;
+import ru.koniaev.bookstorage.api.response.Response;
 import ru.koniaev.bookstorage.model.Author;
-import ru.koniaev.bookstorage.service.AuthorService;
+import ru.koniaev.bookstorage.service.EntityService;
 
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,7 +28,7 @@ public class AuthorControllerTest {
     private final static int ID = 1;
     
     @Mock
-    private AuthorService service;
+    private EntityService<Integer, Author> service;
     
     @InjectMocks
     private AuthorController controller;
@@ -121,7 +122,7 @@ public class AuthorControllerTest {
     }
     
     @Test
-    void update() {
+    void update_shouldReturnId_whenIdExistsAndCorrectParams() {
         Author author = createAuthor();
         String firstName = author.getFirstName();
         String secondName = author.getSecondName();
@@ -138,7 +139,38 @@ public class AuthorControllerTest {
     }
     
     @Test
-    void delete() {
+    void update_shouldReturnFalse_whenIncorrectParams() {
+        when(service.update(ID, null, null, null)).thenReturn(0);
+        final ResponseEntity<Response> expected = new ResponseEntity<>(
+                new Response(false), HttpStatus.NOT_FOUND);
+        
+        ResponseEntity<Response> actual = controller.update(ID, null, null, null);
+        
+        assertNotNull(actual);
+        assertEquals(expected, actual);
+        verify(service).update(ID, null, null, null);
+    }
+    
+    @Test
+    void update_shouldReturnFalse_whenIdNotExists() {
+        Author author = createAuthor();
+        String firstName = author.getFirstName();
+        String secondName = author.getSecondName();
+        Date birthday = author.getBirthday();
+        when(service.update(ID, firstName, secondName, birthday)).thenReturn(0);
+        final ResponseEntity<Response> expected = new ResponseEntity<>(
+                new Response(false), HttpStatus.NOT_FOUND);
+        
+        ResponseEntity<Response> actual = controller.update(ID, firstName, secondName, birthday);
+        
+        assertNotNull(actual);
+        assertEquals(expected, actual);
+        verify(service).update(ID, firstName, secondName, birthday);
+    }
+    
+    
+    @Test
+    void delete_shouldReturnId_whenIdExists() {
         when(service.deleteById(ID)).thenReturn(ID);
         final ResponseEntity<Response> expected = new ResponseEntity<>(
                 new IdResponse(ID), HttpStatus.NO_CONTENT);
@@ -151,7 +183,21 @@ public class AuthorControllerTest {
     }
     
     @Test
-    void deleteAll() {
+    void delete_shouldReturnFalse_whenIdNotExists() {
+        when(service.deleteById(ID)).thenReturn(0);
+        final ResponseEntity<Response> expected = new ResponseEntity<>(
+                new Response(false), HttpStatus.NOT_FOUND);
+        
+        ResponseEntity<Response> actual = controller.delete(ID);
+        
+        assertNotNull(actual);
+        assertEquals(expected, actual);
+        verify(service).deleteById(ID);
+    }
+    
+    
+    @Test
+    void deleteAll_shouldReturnNoContent() {
         final ResponseEntity<Response> expected =
                 new ResponseEntity<>(new Response(true), HttpStatus.NO_CONTENT);
         

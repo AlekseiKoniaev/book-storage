@@ -2,26 +2,35 @@ package ru.koniaev.bookstorage.service.impl;
 
 import org.springframework.stereotype.Service;
 import ru.koniaev.bookstorage.model.Author;
-import ru.koniaev.bookstorage.repository.AuthorRepository;
-import ru.koniaev.bookstorage.service.AuthorService;
+import ru.koniaev.bookstorage.repository.EntityRepository;
+import ru.koniaev.bookstorage.service.EntityService;
 
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class AuthorServiceImpl implements AuthorService {
+public class AuthorServiceImpl implements EntityService<Integer, Author> {
     
-    private final AuthorRepository authorRepository;
+    private final EntityRepository<Integer, Author> authorRepository;
     
-    public AuthorServiceImpl(AuthorRepository authorRepository) {
+    public AuthorServiceImpl(EntityRepository<Integer, Author> authorRepository) {
         this.authorRepository = authorRepository;
     }
     
     
     @Override
-    public boolean insert(String firstName, String secondName, Date birthday) {
+    public boolean insert(Object...args) {
+    
+        String firstName;
+        String secondName;
+        Date birthday;
+        try {
+            firstName = (String) args[0];
+            secondName = (String) args[1];
+            birthday = (Date) args[2];
+        } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
         
         if ((firstName == null || firstName.isBlank()) ||
                 (secondName == null || secondName.isBlank()) || birthday == null) {
@@ -40,7 +49,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
     
     @Override
-    public Author getById(int id) {
+    public Author getById(Integer id) {
         return authorRepository.findById(id);
     }
     
@@ -50,17 +59,28 @@ public class AuthorServiceImpl implements AuthorService {
     }
     
     @Override
-    public int update(int id, String firstName, String secondName, Date birthday) {
+    public int update(Integer id, Object...args) {
         
         Author author = authorRepository.findById(id);
     
-        if (author == null) {
+        String firstName;
+        String secondName;
+        Date birthday;
+        try {
+            firstName = (String) args[0];
+            secondName = (String) args[1];
+            birthday = (Date) args[2];
+        } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+            return 0;
+        }
+    
+        if (author == null || (firstName == null && secondName == null && birthday == null)) {
             return 0;
         } else {
-            if (!firstName.isBlank()) {
+            if (firstName != null && !firstName.isBlank()) {
                 author.setFirstName(firstName);
             }
-            if (!secondName.isBlank()) {
+            if (secondName != null && !secondName.isBlank()) {
                 author.setSecondName(secondName);
             }
             if (birthday != null) {
@@ -74,7 +94,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
     
     @Override
-    public int deleteById(int id) {
+    public int deleteById(Integer id) {
     
         Author author = authorRepository.findById(id);
         

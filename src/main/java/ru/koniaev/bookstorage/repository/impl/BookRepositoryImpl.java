@@ -6,14 +6,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.koniaev.bookstorage.mapper.BookRowMapper;
 import ru.koniaev.bookstorage.model.Book;
-import ru.koniaev.bookstorage.repository.BookRepository;
+import ru.koniaev.bookstorage.repository.EntityRepository;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
-public class BookRepositoryImpl implements BookRepository {
+public class BookRepositoryImpl implements EntityRepository<Integer, Book> {
     
     private final RowMapper<Book> rowMapper;
     
@@ -38,7 +37,7 @@ public class BookRepositoryImpl implements BookRepository {
     }
     
     @Override
-    public Book findById(int id) {
+    public Book findById(Integer id) {
         try {
             return jdbcTemplate.queryForObject("select * from book where id = ?", rowMapper, id);
         } catch (DataAccessException e) {
@@ -65,7 +64,7 @@ public class BookRepositoryImpl implements BookRepository {
     }
     
     @Override
-    public void delete(int id) {
+    public void delete(Integer id) {
         jdbcTemplate.update("delete from book where id = ?", id);
     }
     

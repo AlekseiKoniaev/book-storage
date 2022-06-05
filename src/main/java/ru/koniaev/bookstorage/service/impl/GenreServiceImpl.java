@@ -2,25 +2,30 @@ package ru.koniaev.bookstorage.service.impl;
 
 import org.springframework.stereotype.Service;
 import ru.koniaev.bookstorage.model.Genre;
-import ru.koniaev.bookstorage.repository.GenreRepository;
-import ru.koniaev.bookstorage.service.GenreService;
+import ru.koniaev.bookstorage.repository.EntityRepository;
+import ru.koniaev.bookstorage.service.EntityService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class GenreServiceImpl implements GenreService {
+public class GenreServiceImpl implements EntityService<Integer, Genre> {
     
-    private final GenreRepository genreRepository;
+    private final EntityRepository<Integer, Genre> genreRepository;
     
-    public GenreServiceImpl(GenreRepository genreRepository) {
+    public GenreServiceImpl(EntityRepository<Integer, Genre> genreRepository) {
         this.genreRepository = genreRepository;
     }
     
     
     @Override
-    public boolean insert(String name) {
+    public boolean insert(Object...args) {
+    
+        String name;
+        try {
+            name = (String) args[0];
+        } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
     
         if (name == null || name.isBlank()) {
             return false;
@@ -35,7 +40,7 @@ public class GenreServiceImpl implements GenreService {
     }
     
     @Override
-    public Genre getById(int id) {
+    public Genre getById(Integer id) {
         return genreRepository.findById(id);
     }
     
@@ -45,7 +50,14 @@ public class GenreServiceImpl implements GenreService {
     }
     
     @Override
-    public int update(int id, String name) {
+    public int update(Integer id, Object...args) {
+    
+        String name;
+        try {
+            name = (String) args[0];
+        } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+            return 0;
+        }
     
         Genre genre = genreRepository.findById(id);
     
@@ -63,7 +75,7 @@ public class GenreServiceImpl implements GenreService {
     }
     
     @Override
-    public int deleteById(int id) {
+    public int deleteById(Integer id) {
         
         Genre genre = genreRepository.findById(id);
     

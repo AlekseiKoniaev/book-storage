@@ -6,14 +6,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.koniaev.bookstorage.mapper.GenreRowMapper;
 import ru.koniaev.bookstorage.model.Genre;
-import ru.koniaev.bookstorage.repository.GenreRepository;
+import ru.koniaev.bookstorage.repository.EntityRepository;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
-public class GenreRepositoryImpl implements GenreRepository {
+public class GenreRepositoryImpl implements EntityRepository<Integer, Genre> {
     
     private final RowMapper<Genre> rowMapper;
     
@@ -37,7 +36,7 @@ public class GenreRepositoryImpl implements GenreRepository {
     }
     
     @Override
-    public Genre findById(int id) {
+    public Genre findById(Integer id) {
         try {
             String sql = "select * from genre where id = ?";
             return jdbcTemplate.queryForObject(sql, rowMapper, id);
@@ -63,7 +62,7 @@ public class GenreRepositoryImpl implements GenreRepository {
     }
     
     @Override
-    public void delete(int id) {
+    public void delete(Integer id) {
         jdbcTemplate.update("delete from genre where id = ?", id);
     }
     

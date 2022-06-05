@@ -7,7 +7,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlMergeMode;
 import ru.koniaev.bookstorage.model.Author;
-import ru.koniaev.bookstorage.repository.AuthorRepository;
+import ru.koniaev.bookstorage.repository.EntityRepository;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -15,7 +15,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,7 +29,7 @@ public class AuthorRepositoryTest {
     private final List<Author> preparedAuthorList = createAuthors();
     
     @Autowired
-    private AuthorRepository repository;
+    private EntityRepository<Integer, Author> repository;
     
     @Test
     void save_shouldSaveAuthor_whenFieldsCorrectAndNotExists() {

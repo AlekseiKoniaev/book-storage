@@ -2,25 +2,38 @@ package ru.koniaev.bookstorage.service.impl;
 
 import org.springframework.stereotype.Service;
 import ru.koniaev.bookstorage.model.Book;
-import ru.koniaev.bookstorage.repository.BookRepository;
-import ru.koniaev.bookstorage.service.BookService;
+import ru.koniaev.bookstorage.repository.EntityRepository;
+import ru.koniaev.bookstorage.service.EntityService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class BookServiceImpl implements BookService {
+public class BookServiceImpl implements EntityService<Integer, Book> {
     
-    private final BookRepository bookRepository;
+    private final EntityRepository<Integer, Book> bookRepository;
     
-    public BookServiceImpl(BookRepository bookRepository) {
+    public BookServiceImpl(EntityRepository<Integer, Book> bookRepository) {
         this.bookRepository = bookRepository;
     }
     
     
     @Override
-    public boolean insert(String title, int year, int pageCount, int authorId, int genreId) {
+    public boolean insert(Object...args) {
+    
+        String title;
+        Integer year;
+        Integer pageCount;
+        Integer authorId;
+        Integer genreId;
+        try {
+            title = (String) args[0];
+            year = (Integer) args[1];
+            pageCount = (Integer) args[2];
+            authorId = (Integer) args[3];
+            genreId = (Integer) args[4];
+        } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
         
         if (title == null || title.isBlank() || year <= 0 ||
                 pageCount <= 0 || authorId <= 0 || genreId <= 0) {
@@ -41,7 +54,7 @@ public class BookServiceImpl implements BookService {
     }
     
     @Override
-    public Book getById(int id) {
+    public Book getById(Integer id) {
         return bookRepository.findById(id);
     }
 
@@ -51,7 +64,22 @@ public class BookServiceImpl implements BookService {
     }
     
     @Override
-    public int update(int id, String title, int year, int pageCount, int authorId, int genreId) {
+    public int update(Integer id, Object...args) {
+    
+        String title;
+        Integer year;
+        Integer pageCount;
+        Integer authorId;
+        Integer genreId;
+        try {
+            title = (String) args[0];
+            year = (Integer) args[1];
+            pageCount = (Integer) args[2];
+            authorId = (Integer) args[3];
+            genreId = (Integer) args[4];
+        } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
+            return 0;
+        }
         
         Book book = bookRepository.findById(id);
         
@@ -81,7 +109,7 @@ public class BookServiceImpl implements BookService {
     }
     
     @Override
-    public int deleteById(int id) {
+    public int deleteById(Integer id) {
         
         Book book = bookRepository.findById(id);
         

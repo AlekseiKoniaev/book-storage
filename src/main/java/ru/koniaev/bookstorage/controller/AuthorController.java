@@ -2,6 +2,7 @@ package ru.koniaev.bookstorage.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.koniaev.bookstorage.api.response.IdResponse;
 import ru.koniaev.bookstorage.api.response.Response;
 import ru.koniaev.bookstorage.model.Author;
-import ru.koniaev.bookstorage.service.AuthorService;
+import ru.koniaev.bookstorage.service.EntityService;
 
 import java.sql.Date;
 import java.util.List;
@@ -29,9 +30,9 @@ import java.util.List;
 @RequestMapping("/api/author")
 public class AuthorController {
     
-    private final AuthorService service;
+    private final EntityService<Integer, Author> service;
     
-    public AuthorController(AuthorService service) {
+    public AuthorController(EntityService<Integer, Author> service) {
         this.service = service;
     }
     
@@ -59,7 +60,7 @@ public class AuthorController {
     
     
     @Operation(
-            description = "Get author by *id*",
+            description = "Get author by id",
             responses = {
                     @ApiResponse(
                             description = "OK",
@@ -87,7 +88,8 @@ public class AuthorController {
                             description = "OK",
                             responseCode = "200",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(type = "array", implementation = Author.class))),
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = Author.class)))),
                     @ApiResponse(description = "Authors not found", responseCode = "404")})
     @GetMapping("/")
     public ResponseEntity<List<Author>> list() {
@@ -103,7 +105,7 @@ public class AuthorController {
     
     
     @Operation(
-            description = "Edit author by *id*",
+            description = "Edit author by id",
             responses = {
                     @ApiResponse(description = "OK", responseCode = "200"),
                     @ApiResponse(description = "Author not found", responseCode = "404")})
@@ -125,7 +127,7 @@ public class AuthorController {
     
     
     @Operation(
-            description = "Delete author by *id*",
+            description = "Delete author by id",
             responses = {
                     @ApiResponse(description = "OK", responseCode = "204"),
                     @ApiResponse(description = "Author not found", responseCode = "404")})

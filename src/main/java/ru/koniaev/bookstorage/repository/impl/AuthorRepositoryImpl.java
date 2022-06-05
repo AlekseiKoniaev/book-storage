@@ -6,15 +6,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.koniaev.bookstorage.mapper.AuthorRowMapper;
 import ru.koniaev.bookstorage.model.Author;
-import ru.koniaev.bookstorage.repository.AuthorRepository;
+import ru.koniaev.bookstorage.repository.EntityRepository;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
-public class AuthorRepositoryImpl implements AuthorRepository {
+public class AuthorRepositoryImpl implements EntityRepository<Integer, Author> {
     
     private final RowMapper<Author> rowMapper;
     
@@ -40,7 +38,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     }
     
     @Override
-    public Author findById(int id) {
+    public Author findById(Integer id) {
         
         try {
             String sql = "select * from author where id = ?";
@@ -70,7 +68,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     }
     
     @Override
-    public void delete(int id) {
+    public void delete(Integer id) {
         jdbcTemplate.update("delete from author where id = ?", id);
     }
     

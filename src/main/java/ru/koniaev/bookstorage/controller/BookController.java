@@ -1,5 +1,11 @@
 package ru.koniaev.bookstorage.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.koniaev.bookstorage.api.response.IdResponse;
 import ru.koniaev.bookstorage.api.response.Response;
 import ru.koniaev.bookstorage.model.Book;
-import ru.koniaev.bookstorage.service.BookService;
+import ru.koniaev.bookstorage.service.EntityService;
 
 import java.util.List;
 
@@ -23,28 +29,43 @@ import java.util.List;
 @RequestMapping("/api/book")
 public class BookController {
     
-    private final BookService bookService;
+    private final EntityService<Integer, Book> bookService;
     
-    public BookController(BookService bookService) {
+    public BookController(EntityService<Integer, Book> bookService) {
         this.bookService = bookService;
     }
-
     
+    
+    @Operation(
+            description = "Create new book",
+            responses = {
+                    @ApiResponse(description = "OK", responseCode = "200"),
+                    @ApiResponse(description = "Invalid input", responseCode = "400")})
     @PostMapping("/")
     public ResponseEntity<Response> insert(
-            @RequestParam("title") String title,
-            @RequestParam("year") int year,
-            @RequestParam("pageCount") int pageCount,
-            @RequestParam("authorId") int authorId,
-            @RequestParam("genreId") int genreId) {
+            @Parameter @RequestParam("title") String title,
+            @Parameter @RequestParam("year") int year,
+            @Parameter @RequestParam("pageCount") int pageCount,
+            @Parameter @RequestParam("authorId") int authorId,
+            @Parameter @RequestParam("genreId") int genreId) {
         
         boolean result = bookService.insert(title, year, pageCount, authorId, genreId);
         
         return new ResponseEntity<>(new Response(result), HttpStatus.OK);
     }
     
+    
+    @Operation(
+            description = "Get book by id",
+            responses = {
+                    @ApiResponse(
+                            description = "OK",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Book.class))),
+                    @ApiResponse(description = "Book not found", responseCode = "404")})
     @GetMapping("/{id}")
-    public ResponseEntity<Book> get(@PathVariable int id) {
+    public ResponseEntity<Book> get(@Parameter @PathVariable int id) {
         
         Book book = bookService.getById(id);
         
@@ -56,6 +77,17 @@ public class BookController {
         
     }
     
+    
+    @Operation(
+            description = "Get all books",
+            responses = {
+                    @ApiResponse(
+                            description = "OK",
+                            responseCode = "200",
+                            content = @Content(mediaType = "application/json",
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = Book.class)))),
+                    @ApiResponse(description = "Books not found", responseCode = "404")})
     @GetMapping("/")
     public ResponseEntity<List<Book>> list() {
         
@@ -68,14 +100,20 @@ public class BookController {
         }
     }
     
+    
+    @Operation(
+            description = "Edit book by id",
+            responses = {
+                    @ApiResponse(description = "OK", responseCode = "200"),
+                    @ApiResponse(description = "Book not found", responseCode = "404")})
     @PutMapping("/{id}")
     public ResponseEntity<Response> update(
-            @PathVariable int id,
-            @RequestParam(value = "title", required = false, defaultValue = "null") String title,
-            @RequestParam(value = "year", required = false, defaultValue = "0") int year,
-            @RequestParam(value = "pageCount", required = false, defaultValue = "0") int pageCount,
-            @RequestParam(value = "authorId", required = false, defaultValue = "0") int authorId,
-            @RequestParam(value = "genreId", required = false, defaultValue = "0") int genreId) {
+            @Parameter @PathVariable int id,
+            @Parameter @RequestParam(value = "title", required = false, defaultValue = "null") String title,
+            @Parameter @RequestParam(value = "year", required = false, defaultValue = "0") int year,
+            @Parameter @RequestParam(value = "pageCount", required = false, defaultValue = "0") int pageCount,
+            @Parameter @RequestParam(value = "authorId", required = false, defaultValue = "0") int authorId,
+            @Parameter @RequestParam(value = "genreId", required = false, defaultValue = "0") int genreId) {
     
         int result = bookService.update(id, title, year, pageCount, authorId, genreId);
     
@@ -86,8 +124,14 @@ public class BookController {
         }
     }
     
+    
+    @Operation(
+            description = "Delete book by id",
+            responses = {
+                    @ApiResponse(description = "OK", responseCode = "204"),
+                    @ApiResponse(description = "Book not found", responseCode = "404")})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> delete(@PathVariable int id) {
+    public ResponseEntity<Response> delete(@Parameter @PathVariable int id) {
         
         int result = bookService.deleteById(id);
         
@@ -98,6 +142,10 @@ public class BookController {
         }
     }
     
+    
+    @Operation(
+            description = "Clear table",
+            responses = {@ApiResponse(description = "OK", responseCode = "204")})
     @DeleteMapping("/")
     public ResponseEntity<Response> deleteAll() {
         bookService.deleteAll();

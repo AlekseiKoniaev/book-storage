@@ -1,5 +1,8 @@
 package ru.koniaev.bookstorage;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,7 +39,7 @@ public class AuthorMvcTest {
     private AuthorController controller;
     
     @Test
-    void insert_shouldReturnOk() throws Exception {
+    void insert_shouldReturnOk_whenParamsCorrectAndNotExists() throws Exception {
         Author author = createAuthors().get(2);
         
         this.mockMvc.perform(post("/api/author/")
@@ -49,37 +52,58 @@ public class AuthorMvcTest {
     }
     
     @Test
-    void get_shouldReturnAuthor() throws Exception {
+    void insert_shouldReturnOk_whenExists() throws Exception {
         Author author = createAuthors().get(0);
         
+        this.mockMvc.perform(post("/api/author/")
+                        .param("firstName", author.getFirstName())
+                        .param("secondName", author.getSecondName())
+                        .param("birthday", author.getBirthday().toString()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json("{result:true}"));
+    }
+    
+    @Test
+    void insert_shouldReturnBadRequest_whenParamsNotCorrect() throws Exception {
+        Author author = createAuthors().get(2);
+        
+        this.mockMvc.perform(post("/api/author/")
+                        .param("firstName", author.getFirstName())
+                        .param("birthday", author.getBirthday().toString()))
+                .andDo(print())
+                .andExpect(status().is(400));
+    }
+    
+    
+    @Test
+    void get_shouldReturnAuthor() throws Exception {
+        Author author = createAuthors().get(0);
+        JSONObject jsonObject = getAuthorJsonObject(author);
+    
         this.mockMvc.perform(get("/api/author/{id}", author.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(
-                        "{id:" + author.getId() +
-                                ",firstName:" + author.getFirstName() +
-                                ",secondName:" + author.getSecondName() +
-                                ",birthday:" + author.getBirthday() + "}"));
+                .andExpect(content().json(jsonObject.toString()));
     }
+    
     
     @Test
     void list_shouldReturnAuthorList() throws Exception {
         List<Author> authors = createAuthors();
-        
+        JSONArray jsonArray = new JSONArray();
+        for (int i = 0; i <= 1; i++) {
+            Author author = authors.get(i);
+            JSONObject jsonObject = getAuthorJsonObject(author);
+            jsonArray.put(jsonObject);
+        }
+    
         this.mockMvc.perform(get("/api/author/"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(
-                        "[{id:" + authors.get(0).getId() +
-                                ",firstName:" + authors.get(0).getFirstName() +
-                                ",secondName:" + authors.get(0).getSecondName() +
-                                ",birthday:" + authors.get(0).getBirthday() +
-                                "},{id:" + authors.get(1).getId() +
-                                ",firstName:" + authors.get(1).getFirstName() +
-                                ",secondName:" + authors.get(1).getSecondName() +
-                                ",birthday:" + authors.get(1).getBirthday() +
-                                "}]"));
+                .andExpect(content().json(jsonArray.toString()));
     }
+    
     
     @Test
     void update_shouldReturnId() throws Exception {
@@ -95,6 +119,7 @@ public class AuthorMvcTest {
                 .andExpect(content().json("{result:true,id:" + author.getId() + "}"));
     }
     
+    
     @Test
     void delete_shouldReturnId() throws Exception {
         final int id = 1;
@@ -105,6 +130,7 @@ public class AuthorMvcTest {
                 .andExpect(content().json("{result:true,id:" + id + "}"));
     }
     
+    
     @Test
     void deleteAll_shouldReturnOk() throws Exception {
         this.mockMvc.perform(delete("/api/author/"))
@@ -112,6 +138,7 @@ public class AuthorMvcTest {
                 .andExpect(status().is(204))
                 .andExpect(content().json("{result:true}"));
     }
+    
     
     private List<Author> createAuthors() {
         List<Author> list = new ArrayList<>();
@@ -140,4 +167,20 @@ public class AuthorMvcTest {
         
         return list;
     }
+    
+    private JSONObject getResponseJsonObject(boolean result) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("result", result);
+        return jsonObject;
+    }
+    
+    private JSONObject getAuthorJsonObject(Author author) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", author.getId());
+        jsonObject.put("firstName", author.getFirstName());
+        jsonObject.put("secondName", author.getSecondName());
+        jsonObject.put("birthday", author.getBirthday().toString());
+        return jsonObject;
+    }
+
 }
