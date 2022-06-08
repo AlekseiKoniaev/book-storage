@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM openjdk:17-alpine
 COPY target/book-storage-1.0.jar bookstorage.jar
 COPY ./application-prod.properties .
 ENV PORT 8080

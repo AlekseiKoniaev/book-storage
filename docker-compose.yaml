@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+    postgres:
+        image: postgres:alpine
+        restart: always
+        environment:
+            POSTGRES_USER: librarian
+            POSTGRES_PASSWORD: 9en2w0oc
+            POSTGRES_DB: book_storage
+        ports:
+            - "5431:5432"
+        volumes:
+            - C:\docker\postgres:/var/lib/postgres
+    bookstore:
+        container_name: bookstore
+        image: bookstore
+        build:
+            context: .
+        ports:
+            - "8080:8080"
+        environment:
+            PROFILE: stage
+        depends_on:
+            postgres:
+                condition: service_started
