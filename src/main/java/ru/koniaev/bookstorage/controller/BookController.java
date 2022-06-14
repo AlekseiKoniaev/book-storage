@@ -29,9 +29,9 @@ import java.util.List;
 @RequestMapping("/api/book")
 public class BookController {
     
-    private final EntityService<Integer, Book> bookService;
+    private final EntityService<Book, Integer> bookService;
     
-    public BookController(EntityService<Integer, Book> bookService) {
+    public BookController(EntityService<Book, Integer> bookService) {
         this.bookService = bookService;
     }
     

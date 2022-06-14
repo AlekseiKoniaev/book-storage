@@ -8,11 +8,11 @@ import ru.koniaev.bookstorage.service.EntityService;
 import java.util.List;
 
 @Service
-public class GenreServiceImpl implements EntityService<Integer, Genre> {
+public class GenreServiceImpl implements EntityService<Genre, Integer> {
     
-    private final EntityRepository<Integer, Genre> genreRepository;
+    private final EntityRepository<Genre, Integer> genreRepository;
     
-    public GenreServiceImpl(EntityRepository<Integer, Genre> genreRepository) {
+    public GenreServiceImpl(EntityRepository<Genre, Integer> genreRepository) {
         this.genreRepository = genreRepository;
     }
     

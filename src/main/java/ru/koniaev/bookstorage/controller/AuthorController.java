@@ -30,9 +30,9 @@ import java.util.List;
 @RequestMapping("/api/author")
 public class AuthorController {
     
-    private final EntityService<Integer, Author> service;
+    private final EntityService<Author, Integer> service;
     
-    public AuthorController(EntityService<Integer, Author> service) {
+    public AuthorController(EntityService<Author, Integer> service) {
         this.service = service;
     }
     
@@ -55,7 +55,6 @@ public class AuthorController {
         } else {
             return new ResponseEntity<>(new Response(false), HttpStatus.BAD_REQUEST);
         }
-        
     }
     
     

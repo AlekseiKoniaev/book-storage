@@ -8,11 +8,11 @@ import ru.koniaev.bookstorage.service.EntityService;
 import java.util.List;
 
 @Service
-public class BookServiceImpl implements EntityService<Integer, Book> {
+public class BookServiceImpl implements EntityService<Book, Integer> {
     
-    private final EntityRepository<Integer, Book> bookRepository;
+    private final EntityRepository<Book, Integer> bookRepository;
     
-    public BookServiceImpl(EntityRepository<Integer, Book> bookRepository) {
+    public BookServiceImpl(EntityRepository<Book, Integer> bookRepository) {
         this.bookRepository = bookRepository;
     }
     

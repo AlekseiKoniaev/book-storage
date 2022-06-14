@@ -9,11 +9,11 @@ import java.sql.Date;
 import java.util.List;
 
 @Service
-public class AuthorServiceImpl implements EntityService<Integer, Author> {
+public class AuthorServiceImpl implements EntityService<Author, Integer> {
     
-    private final EntityRepository<Integer, Author> authorRepository;
+    private final EntityRepository<Author, Integer> authorRepository;
     
-    public AuthorServiceImpl(EntityRepository<Integer, Author> authorRepository) {
+    public AuthorServiceImpl(EntityRepository<Author, Integer> authorRepository) {
         this.authorRepository = authorRepository;
     }
     

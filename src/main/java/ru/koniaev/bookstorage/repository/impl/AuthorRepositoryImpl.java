@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import java.util.List;
 
 @Repository
-public class AuthorRepositoryImpl implements EntityRepository<Integer, Author> {
+public class AuthorRepositoryImpl implements EntityRepository<Author, Integer> {
     
     private final RowMapper<Author> rowMapper;
     

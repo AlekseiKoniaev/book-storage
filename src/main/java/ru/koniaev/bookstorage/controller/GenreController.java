@@ -29,9 +29,9 @@ import java.util.List;
 @RequestMapping("/api/genre")
 public class GenreController {
     
-    private final EntityService<Integer, Genre> genreService;
+    private final EntityService<Genre, Integer> genreService;
     
-    public GenreController(EntityService<Integer, Genre> genreService) {
+    public GenreController(EntityService<Genre, Integer> genreService) {
         this.genreService = genreService;
     }
     

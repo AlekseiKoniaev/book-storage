@@ -4,7 +4,6 @@
 ### Технологии
 Spring Boot, PostgreSQL, Docker, liquibase, OpenApi
 ### Запуск
- - Настроить соответствующие файлы конфигураций.
- - Собрать проект в docker-контейнер `mvn clean package` и `docker build .`
- - Подключить базу данных.
- - Запустить контейнер с приложением командой `docker run --name bookstore -p 8080:8080 -e bookstore`.
+ - Установить и запустить докер
+ - Собрать проект в jar `mvn clean package`
+ - Запустить запустить автоматизированную сборку и запуск проекта `docker-compose up`.
