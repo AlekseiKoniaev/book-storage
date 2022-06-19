@@ -24,7 +24,6 @@ import ru.koniaev.bookstorage.service.EntityService;
 
 import java.util.List;
 
-@Tag(name = "genre", description = "The genre API")
 @RestController
 @RequestMapping("/api/genre")
 public class GenreController {
@@ -34,31 +33,15 @@ public class GenreController {
     public GenreController(EntityService<Genre, Integer> genreService) {
         this.genreService = genreService;
     }
-    
-    
-    @Operation(
-            description = "Create new genre",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "200"),
-                    @ApiResponse(description = "Invalid input", responseCode = "400")})
+
     @PostMapping("/")
-    public ResponseEntity<Response> insert(@Parameter @RequestParam("name") String name) {
+    public ResponseEntity<Response> insert(@RequestParam("name") String name) {
         boolean result = genreService.insert(name);
         return new ResponseEntity<>(new Response(result), HttpStatus.OK);
     }
-    
-    
-    @Operation(
-            description = "Get genre by id",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Genre.class))),
-                    @ApiResponse(description = "Genre not found", responseCode = "404")})
+ 
     @GetMapping("/{id}")
-    public ResponseEntity<Genre> get(@Parameter @PathVariable int id) {
+    public ResponseEntity<Genre> get(@PathVariable int id) {
     
         Genre genre = genreService.getById(id);
         
@@ -69,17 +52,6 @@ public class GenreController {
         }
     }
     
-    
-    @Operation(
-            description = "Get all genres",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200",
-                            content = @Content(mediaType = "application/json",
-                                    array = @ArraySchema(
-                                            schema = @Schema(implementation = Genre.class)))),
-                    @ApiResponse(description = "Genres not found", responseCode = "404")})
     @GetMapping("/")
     public ResponseEntity<List<Genre>> list() {
         
@@ -91,17 +63,11 @@ public class GenreController {
             return new ResponseEntity<>(authorList, HttpStatus.OK);
         }
     }
-    
-    
-    @Operation(
-            description = "Edit genre by id",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "200"),
-                    @ApiResponse(description = "Genre not found", responseCode = "404")})
+
     @PutMapping("/{id}")
     public ResponseEntity<Response> update(
-            @Parameter @PathVariable int id,
-            @Parameter @RequestParam(value = "name", required = false, defaultValue = "null") String name) {
+            @PathVariable int id,
+            @RequestParam(value = "name", required = false, defaultValue = "null") String name) {
         
         int result = genreService.update(id, name);
         
@@ -111,15 +77,9 @@ public class GenreController {
             return new ResponseEntity<>(new IdResponse(id), HttpStatus.OK);
         }
     }
-    
-    
-    @Operation(
-            description = "Delete genre by id",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "204"),
-                    @ApiResponse(description = "Genre not found", responseCode = "404")})
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> delete(@Parameter @PathVariable int id) {
+    public ResponseEntity<Response> delete(@PathVariable int id) {
         
         int result = genreService.deleteById(id);
         
@@ -129,11 +89,7 @@ public class GenreController {
             return new ResponseEntity<>(new IdResponse(id), HttpStatus.NO_CONTENT);
         }
     }
-    
-    
-    @Operation(
-            description = "Clear table",
-            responses = {@ApiResponse(description = "OK", responseCode = "204")})
+
     @DeleteMapping("/")
     public ResponseEntity<Response> deleteAll() {
         genreService.deleteAll();

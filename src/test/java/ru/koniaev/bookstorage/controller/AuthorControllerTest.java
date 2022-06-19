@@ -28,7 +28,7 @@ public class AuthorControllerTest {
     private final static int ID = 1;
     
     @Mock
-    private EntityService<Integer, Author> service;
+    private EntityService<Author, Integer> service;
     
     @InjectMocks
     private AuthorController controller;

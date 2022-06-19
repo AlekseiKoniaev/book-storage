@@ -6,12 +6,16 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.koniaev.bookstorage.controller.AuthorController;
 import ru.koniaev.bookstorage.model.Author;
+import ru.koniaev.bookstorage.service.impl.AuthorServiceImpl;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -25,18 +29,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@TestPropertySource("/application-test.properties")
+//@SpringBootTest
+@WebMvcTest
+@MockBean(AuthorServiceImpl.class)
+//@AutoConfigureMockMvc
+//@TestPropertySource("/application-test.properties")
+//@ActiveProfiles("test")
 @Sql(value = {"/sql/author/author-before.sql", "/sql/author/create-author-before.sql"},
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class AuthorMvcTest {
     
     @Autowired
     private MockMvc mockMvc;
-    
-    @Autowired
-    private AuthorController controller;
+//
+//    @Autowired
+//    private AuthorController controller;
     
     @Test
     void insert_shouldReturnOk_whenParamsCorrectAndNotExists() throws Exception {

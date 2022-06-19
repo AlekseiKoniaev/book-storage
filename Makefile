@@ -3,4 +3,4 @@ rundb:
 buildapp:
 	docker build -t bookstore .
 runapp:
-	docker run --name bookstore -p 8080:8080 bookstore
+	docker run --rm --name bookstore -p 8080:8080 bookstore

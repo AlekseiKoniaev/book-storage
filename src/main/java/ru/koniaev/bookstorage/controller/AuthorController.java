@@ -25,7 +25,6 @@ import ru.koniaev.bookstorage.service.EntityService;
 import java.sql.Date;
 import java.util.List;
 
-@Tag(name = "author", description = "The author API")
 @RestController
 @RequestMapping("/api/author")
 public class AuthorController {
@@ -36,17 +35,11 @@ public class AuthorController {
         this.service = service;
     }
     
-    
-    @Operation(
-            description = "Create new author",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "200"),
-                    @ApiResponse(description = "Invalid input", responseCode = "400")})
     @PostMapping("/")
     public ResponseEntity<Response> insert(
-            @Parameter @RequestParam("firstName") String firstName,
-            @Parameter @RequestParam("secondName") String secondName,
-            @Parameter @RequestParam("birthday") Date birthday) {
+            @RequestParam("firstName") String firstName,
+            @RequestParam("secondName") String secondName,
+            @RequestParam("birthday") Date birthday) {
         
         boolean result = service.insert(firstName, secondName, birthday);
         
@@ -58,17 +51,8 @@ public class AuthorController {
     }
     
     
-    @Operation(
-            description = "Get author by id",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Author.class))),
-                    @ApiResponse(description = "Author not found", responseCode = "404")})
     @GetMapping("/{id}")
-    public ResponseEntity<Author> get(@Parameter @PathVariable int id) {
+    public ResponseEntity<Author> get(@PathVariable int id) {
         
         Author author = service.getById(id);
         
@@ -80,16 +64,6 @@ public class AuthorController {
     }
     
     
-    @Operation(
-            description = "Get all authors",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200",
-                            content = @Content(mediaType = "application/json",
-                                    array = @ArraySchema(
-                                            schema = @Schema(implementation = Author.class)))),
-                    @ApiResponse(description = "Authors not found", responseCode = "404")})
     @GetMapping("/")
     public ResponseEntity<List<Author>> list() {
         
@@ -103,17 +77,12 @@ public class AuthorController {
     }
     
     
-    @Operation(
-            description = "Edit author by id",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "200"),
-                    @ApiResponse(description = "Author not found", responseCode = "404")})
     @PutMapping("/{id}")
     public ResponseEntity<Response> update(
-            @Parameter @PathVariable int id,
-            @Parameter @RequestParam(value = "firstName", required = false, defaultValue = "null") String firstName,
-            @Parameter @RequestParam(value = "secondName", required = false, defaultValue = "null") String secondName,
-            @Parameter @RequestParam(value = "birthday", required = false, defaultValue = "null") Date birthday) {
+            @PathVariable int id,
+            @RequestParam(value = "firstName", required = false, defaultValue = "null") String firstName,
+            @RequestParam(value = "secondName", required = false, defaultValue = "null") String secondName,
+            @RequestParam(value = "birthday", required = false, defaultValue = "null") Date birthday) {
         
         int result = service.update(id, firstName, secondName, birthday);
         
@@ -125,13 +94,8 @@ public class AuthorController {
     }
     
     
-    @Operation(
-            description = "Delete author by id",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "204"),
-                    @ApiResponse(description = "Author not found", responseCode = "404")})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> delete(@Parameter @PathVariable int id) {
+    public ResponseEntity<Response> delete(@PathVariable int id) {
         
         int result = service.deleteById(id);
         
@@ -143,9 +107,6 @@ public class AuthorController {
     }
     
     
-    @Operation(
-            description = "Clear table",
-            responses = {@ApiResponse(description = "OK", responseCode = "204")})
     @DeleteMapping("/")
     public ResponseEntity<Response> deleteAll() {
         service.deleteAll();

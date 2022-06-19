@@ -22,7 +22,7 @@ public class AuthorServiceTest {
     private static final int ID = 1;
 
     @Mock
-    private EntityRepository<Integer, Author> repository;
+    private EntityRepository<Author, Integer> repository;
     
     @InjectMocks
     private AuthorServiceImpl service;

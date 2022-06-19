@@ -24,7 +24,6 @@ import ru.koniaev.bookstorage.service.EntityService;
 
 import java.util.List;
 
-@Tag(name = "book", description = "The book API")
 @RestController
 @RequestMapping("/api/book")
 public class BookController {
@@ -34,38 +33,22 @@ public class BookController {
     public BookController(EntityService<Book, Integer> bookService) {
         this.bookService = bookService;
     }
-    
-    
-    @Operation(
-            description = "Create new book",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "200"),
-                    @ApiResponse(description = "Invalid input", responseCode = "400")})
+
     @PostMapping("/")
     public ResponseEntity<Response> insert(
-            @Parameter @RequestParam("title") String title,
-            @Parameter @RequestParam("year") int year,
-            @Parameter @RequestParam("pageCount") int pageCount,
-            @Parameter @RequestParam("authorId") int authorId,
-            @Parameter @RequestParam("genreId") int genreId) {
+            @RequestParam("title") String title,
+            @RequestParam("year") int year,
+            @RequestParam("pageCount") int pageCount,
+            @RequestParam("authorId") int authorId,
+            @RequestParam("genreId") int genreId) {
         
         boolean result = bookService.insert(title, year, pageCount, authorId, genreId);
         
         return new ResponseEntity<>(new Response(result), HttpStatus.OK);
     }
-    
-    
-    @Operation(
-            description = "Get book by id",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Book.class))),
-                    @ApiResponse(description = "Book not found", responseCode = "404")})
+
     @GetMapping("/{id}")
-    public ResponseEntity<Book> get(@Parameter @PathVariable int id) {
+    public ResponseEntity<Book> get(@PathVariable int id) {
         
         Book book = bookService.getById(id);
         
@@ -77,17 +60,6 @@ public class BookController {
         
     }
     
-    
-    @Operation(
-            description = "Get all books",
-            responses = {
-                    @ApiResponse(
-                            description = "OK",
-                            responseCode = "200",
-                            content = @Content(mediaType = "application/json",
-                                    array = @ArraySchema(
-                                            schema = @Schema(implementation = Book.class)))),
-                    @ApiResponse(description = "Books not found", responseCode = "404")})
     @GetMapping("/")
     public ResponseEntity<List<Book>> list() {
         
@@ -100,20 +72,14 @@ public class BookController {
         }
     }
     
-    
-    @Operation(
-            description = "Edit book by id",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "200"),
-                    @ApiResponse(description = "Book not found", responseCode = "404")})
     @PutMapping("/{id}")
     public ResponseEntity<Response> update(
-            @Parameter @PathVariable int id,
-            @Parameter @RequestParam(value = "title", required = false, defaultValue = "null") String title,
-            @Parameter @RequestParam(value = "year", required = false, defaultValue = "0") int year,
-            @Parameter @RequestParam(value = "pageCount", required = false, defaultValue = "0") int pageCount,
-            @Parameter @RequestParam(value = "authorId", required = false, defaultValue = "0") int authorId,
-            @Parameter @RequestParam(value = "genreId", required = false, defaultValue = "0") int genreId) {
+            @PathVariable int id,
+            @RequestParam(value = "title", required = false, defaultValue = "null") String title,
+            @RequestParam(value = "year", required = false, defaultValue = "0") int year,
+            @RequestParam(value = "pageCount", required = false, defaultValue = "0") int pageCount,
+            @RequestParam(value = "authorId", required = false, defaultValue = "0") int authorId,
+            @RequestParam(value = "genreId", required = false, defaultValue = "0") int genreId) {
     
         int result = bookService.update(id, title, year, pageCount, authorId, genreId);
     
@@ -124,14 +90,8 @@ public class BookController {
         }
     }
     
-    
-    @Operation(
-            description = "Delete book by id",
-            responses = {
-                    @ApiResponse(description = "OK", responseCode = "204"),
-                    @ApiResponse(description = "Book not found", responseCode = "404")})
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> delete(@Parameter @PathVariable int id) {
+    public ResponseEntity<Response> delete(@PathVariable int id) {
         
         int result = bookService.deleteById(id);
         
@@ -141,11 +101,7 @@ public class BookController {
             return new ResponseEntity<>(new IdResponse(id), HttpStatus.NO_CONTENT);
         }
     }
-    
-    
-    @Operation(
-            description = "Clear table",
-            responses = {@ApiResponse(description = "OK", responseCode = "204")})
+
     @DeleteMapping("/")
     public ResponseEntity<Response> deleteAll() {
         bookService.deleteAll();

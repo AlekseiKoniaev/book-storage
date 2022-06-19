@@ -3,6 +3,7 @@ package ru.koniaev.bookstorage.repository.impl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlMergeMode;
@@ -21,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD;
 
 @SpringBootTest
-@TestPropertySource("/application-test.properties")
+//@TestPropertySource("/application-test.properties")
+@ActiveProfiles("test")
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @Sql(value = "/sql/author/author-before.sql", executionPhase = BEFORE_TEST_METHOD)
 public class AuthorRepositoryTest {
@@ -29,7 +31,7 @@ public class AuthorRepositoryTest {
     private final List<Author> preparedAuthorList = createAuthors();
     
     @Autowired
-    private EntityRepository<Integer, Author> repository;
+    private EntityRepository<Author, Integer> repository;
     
     @Test
     void save_shouldSaveAuthor_whenFieldsCorrectAndNotExists() {
