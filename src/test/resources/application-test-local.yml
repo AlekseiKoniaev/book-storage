@@ -1,0 +1,11 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://localhost:5432/book_storage_test
+        username: librarian
+        password: 9en2w0oc
+    jpa:
+        hibernate:
+            ddl-auto: 'create-drop'
+logging:
+    level:
+        root: info

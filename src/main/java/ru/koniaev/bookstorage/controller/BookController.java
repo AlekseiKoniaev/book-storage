@@ -1,110 +1,58 @@
 package ru.koniaev.bookstorage.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.koniaev.bookstorage.api.response.IdResponse;
-import ru.koniaev.bookstorage.api.response.Response;
 import ru.koniaev.bookstorage.model.Book;
-import ru.koniaev.bookstorage.service.EntityService;
+import ru.koniaev.bookstorage.service.BookService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/book")
+@RequiredArgsConstructor
 public class BookController {
+    private final BookService service;
     
-    private final EntityService<Book, Integer> bookService;
     
-    public BookController(EntityService<Book, Integer> bookService) {
-        this.bookService = bookService;
-    }
-
     @PostMapping("/")
-    public ResponseEntity<Response> insert(
-            @RequestParam("title") String title,
-            @RequestParam("year") int year,
-            @RequestParam("pageCount") int pageCount,
-            @RequestParam("authorId") int authorId,
-            @RequestParam("genreId") int genreId) {
-        
-        boolean result = bookService.insert(title, year, pageCount, authorId, genreId);
-        
-        return new ResponseEntity<>(new Response(result), HttpStatus.OK);
+    public Book create(Book book) {
+        return service.create(book);
     }
-
+    
+    
     @GetMapping("/{id}")
-    public ResponseEntity<Book> get(@PathVariable int id) {
-        
-        Book book = bookService.getById(id);
-        
-        if (book == null) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(book, HttpStatus.OK);
-        }
-        
+    public Book get(@PathVariable int id) {
+        return service.getById(id);
     }
+    
     
     @GetMapping("/")
-    public ResponseEntity<List<Book>> list() {
-        
-        List<Book> bookList = bookService.getAll();
-        
-        if (bookList.isEmpty()) {
-            return new ResponseEntity<>(bookList, HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(bookList, HttpStatus.OK);
-        }
+    public List<Book> list() {
+        return service.getAll();
     }
+    
     
     @PutMapping("/{id}")
-    public ResponseEntity<Response> update(
-            @PathVariable int id,
-            @RequestParam(value = "title", required = false, defaultValue = "null") String title,
-            @RequestParam(value = "year", required = false, defaultValue = "0") int year,
-            @RequestParam(value = "pageCount", required = false, defaultValue = "0") int pageCount,
-            @RequestParam(value = "authorId", required = false, defaultValue = "0") int authorId,
-            @RequestParam(value = "genreId", required = false, defaultValue = "0") int genreId) {
-    
-        int result = bookService.update(id, title, year, pageCount, authorId, genreId);
-    
-        if (result == 0) {
-            return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(new IdResponse(id), HttpStatus.OK);
-        }
+    public Book update(@PathVariable int id, Book genre) {
+        return service.update(id, genre);
     }
+    
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> delete(@PathVariable int id) {
-        
-        int result = bookService.deleteById(id);
-        
-        if (result == 0) {
-            return new ResponseEntity<>(new Response(false), HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(new IdResponse(id), HttpStatus.NO_CONTENT);
-        }
+    public void delete(@PathVariable int id) {
+        service.deleteById(id);
     }
-
+    
+    
     @DeleteMapping("/")
-    public ResponseEntity<Response> deleteAll() {
-        bookService.deleteAll();
-        return new ResponseEntity<>(new Response(true), HttpStatus.NO_CONTENT);
+    public void deleteAll() {
+        service.deleteAll();
     }
 }
